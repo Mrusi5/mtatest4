@@ -1,0 +1,8 @@
+<meta>
+    <info author="Mrusi" type="script" name="db_connect" description="db" />
+	<script src="Sconnect.lua" type="server" />
+	
+	<export function="Query" type="server" />
+	<export function="QuerySingle" type="server" />
+	<export function="Exec" type="server" />
+</meta>
