@@ -1,0 +1,5 @@
+<meta>
+     <info author="Mrusi" type="script" name="login_system" description="login system" />
+     <script src="Clogin_system.lua" type="client"/>
+     <script src="Slogin_system.lua" type="server"/>
+</meta>
