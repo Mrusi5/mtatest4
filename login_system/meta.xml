@@ -1,0 +1,5 @@
+<meta>
+     <info author="Mrusi" type="script" name="id_players" description="Id" />
+     <script src="Sid_issuance.lua" type="server"/>
+     <script src="Cdraw_id.lua" type="client"/>
+</meta>
