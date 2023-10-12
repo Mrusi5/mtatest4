@@ -1,3 +1,4 @@
+loadstring( exports.interfacer:extend( "Sconnect" ) )( )
 
 --Назначения лидера фракции
 function setFactionLeader( player, playerID, factionID )
@@ -87,8 +88,8 @@ end
 
 addCommandHandler( "set_player_faction_leader", function( player, cmd, targetPlayerID, factionID )
     local accountName = getAccountName( getPlayerAccount( player ) )
-
-    if isObjectInACLGroup( "user."..accountName, aclGetGroup( "Admin" ) ) then
+    local access_level = Query("SELECT admin_level FROM users WHERE username=?", accountName)[1].admin_level
+    if access_level ~= 1 then
         if targetPlayerID then
             setFactionLeader( player, targetPlayerID, factionID )
         else
@@ -101,8 +102,8 @@ end )
 
 addCommandHandler( "set_player_faction", function( player, cmd, targetPlayerID, factionID )
     local accountName = getAccountName( getPlayerAccount( player ) )
-
-    if isObjectInACLGroup( "user."..accountName, aclGetGroup( "Admin" ) ) then
+    local access_level = Query("SELECT admin_level FROM users WHERE username=?", accountName)[1].admin_level
+    if access_level ~= 1 then
         if targetPlayerID then
             setPlayerFaction( player, targetPlayerID, factionID )
         else
