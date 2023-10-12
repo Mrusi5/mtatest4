@@ -1,0 +1,7 @@
+<meta>
+    <info author="Mrusi" type="script" name="interfacer" description="interfacer" />
+    <script src="shared.lua" type="server"/>
+
+    <export function="extend" type="server"/>
+    <export function="extend" type="client"/>
+</meta>
