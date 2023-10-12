@@ -1,5 +1,0 @@
-<meta>
-    <info author="Mrusi" type="script" name="admin_level" description="admin level" />
-	<script src="SadminLevel.lua" type="server" />
-	
-</meta>
