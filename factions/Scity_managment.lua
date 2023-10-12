@@ -1,3 +1,5 @@
+loadstring( exports.interfacer:extend( "Sconnect" ) )( )
+
 -- Определяем класс CityManagement
 CityManagement = { }
 CityManagement.__index = CityManagement
@@ -19,20 +21,20 @@ function CityManagement:new( cityName )
     self.availablePoints = 10
     self.lastTaxChangeTime = formattedTime
     
-    local check = exports.db_connect:Query( "SELECT * FROM city WHERE cityName=?", cityName )
+    local check = Query( "SELECT * FROM city WHERE cityName=?", cityName )
     if check[ 1 ] then
         return
     end
 
-    local query = exports.db_connect:Exec( "INSERT INTO city ( cityName, lastNameChangeTime, availablePoints, lastTaxChangeTime ) VALUES ( ?, ?, ?, ? )", self.cityName, self.lastNameChangeTime, self.availablePoints, self.lastTaxChangeTime )
+    local query = Exec( "INSERT INTO city ( cityName, lastNameChangeTime, availablePoints, lastTaxChangeTime ) VALUES ( ?, ?, ?, ? )", self.cityName, self.lastNameChangeTime, self.availablePoints, self.lastTaxChangeTime )
 
     if query then
-        result = exports.db_connect:Query( "SELECT * FROM city WHERE cityName=?", cityName )
+        result = Query( "SELECT * FROM city WHERE cityName=?", cityName )
         if result then
             self.id = result[ 1 ].id
 
             for taxName, value in pairs( self.taxRates ) do
-            local taxQuery = exports.db_connect:Exec( "INSERT INTO tax ( taxName, value, city_id ) VALUES ( ?, ?, ? )", taxName, value, self.id )
+            local taxQuery = Exec( "INSERT INTO tax ( taxName, value, city_id ) VALUES ( ?, ?, ? )", taxName, value, self.id )
             end
         end
     end
@@ -68,26 +70,28 @@ function CityManagement:addEventHandlers(  )
 end
 
 function CityManagement:getCityTable(  )
-    local CityTable = exports.db_connect:Query( "SELECT * FROM city" )
+    local CityTable = Query( "SELECT * FROM city" )
     triggerClientEvent( client, "receiveCityTable", resourceRoot, CityTable )
 end
 
 function CityManagement:getTaxTable(  )
-    local TaxTable = exports.db_connect:Query( "SELECT * FROM tax" )
+    local TaxTable = Query( "SELECT * FROM tax" )
     triggerClientEvent( client, "receiveTaxTable", resourceRoot, TaxTable )
 end
 -- Принятие налогов
 function CityManagement:applyTaxValues( player, taxValues )
-    local lastChange = exports.db_connect:QuerySingle( "SELECT * FROM city" ).lastTaxChangeTime
+    local lastChange = QuerySingle( "SELECT * FROM city" ).lastTaxChangeTime
     local realTime = getRealTime(  ).timestamp
     local formattedTime = os.date( "%Y-%m-%d %H:%M:%S", realTime )
+    outputDebugString(lastChange)
+    outputDebugString(formattedTime)
     if parseTimestamp( formattedTime ) - parseTimestamp( lastChange ) < 86400 then
         outputChatBox( "Изменения налогов можно вносить раз в день", player, 255,0,0 )
         return
     end
     for taxName, value in pairs( taxValues ) do
         local query = "UPDATE tax SET value = ? WHERE taxName = ?"
-        local result = exports.db_connect:Exec( query, value, taxName )
+        local result = Exec( query, value, taxName )
 
         if result then
             outputDebugString( "Обновлен налог: " .. taxName .. " со ставкой " .. value .. "%" )
@@ -96,47 +100,49 @@ function CityManagement:applyTaxValues( player, taxValues )
         end
     end
     outputChatBox( "Изменения приняты", player, 0,255,0 )
-    local query = exports.db_connect:Exec( "UPDATE city SET availablePoints = ?, lastTaxChangeTime = ?", 0, formattedTime )
+    local query = Exec( "UPDATE city SET availablePoints = ?, lastTaxChangeTime = ?", 0, formattedTime )
 end
 -- Изменение имени города
 function CityManagement:changeCityName( player, cityName )
-    local lastChange = exports.db_connect:QuerySingle( "SELECT * FROM city" ).lastNameChangeTime
+    local lastChange = QuerySingle( "SELECT * FROM city" ).lastNameChangeTime
     local realTime = getRealTime(  ).timestamp
     local formattedTime = os.date( "%Y-%m-%d %H:%M:%S", realTime )
     if parseTimestamp( formattedTime ) - parseTimestamp( lastChange ) < 86400 then
         outputChatBox( "Измененить название города можно раз в день", player, 255,0,0 )
         return
     end
-    local result = exports.db_connect:Exec( "UPDATE city SET cityName = ?, lastNameChangeTime = ?" , cityName, formattedTime )
+    local result = Exec( "UPDATE city SET cityName = ?, lastNameChangeTime = ?" , cityName, formattedTime )
     outputChatBox( "Изменения приняты", player, 0,255,0 )
 end
 -- Сброс налогов
 function CityManagement:resetTaxValues( player )
-    local lastChange = exports.db_connect:QuerySingle( "SELECT * FROM city" ).lastTaxChangeTime
+    local lastChange = QuerySingle( "SELECT * FROM city" ).lastTaxChangeTime
     local realTime = getRealTime(  ).timestamp
     local formattedTime = os.date( "%Y-%m-%d %H:%M:%S", realTime )
     if parseTimestamp( formattedTime ) - parseTimestamp( lastChange ) < 86400 then
         outputChatBox( "Изменения налогов можно вносить раз в день", player, 255,0,0 )
         return
     end
-    local taxTable = exports.db_connect:Query( "SELECT * FROM tax" )
+    local taxTable = Query( "SELECT * FROM tax" )
 
     for i, row in pairs( taxTable ) do
         local query = "UPDATE tax SET value = ?"
-        local result = exports.db_connect:Exec( query, 5 )
+        local result = Exec( query, 5 )
     end
     outputChatBox( "Налоги сброшенны", player, 0,255,0 )
 
-    local query = exports.db_connect:Exec( "UPDATE city SET availablePoints = ?, lastTaxChangeTime = ?", 0, formattedTime )
+    local query = Exec( "UPDATE city SET availablePoints = ?, lastTaxChangeTime = ?", 0, formattedTime )
 end
 
-CheckTable = exports.db_connect:Query( "SELECT * FROM city" )
-if not CheckTable[ 1 ] then
-CityManagement:new( 'Saratov' )
-end
+setTimer(function()
+    local CheckTable = Query("SELECT * FROM city")
+    if not CheckTable[1] then
+        CityManagement:new('Saratov')
+    end
+end, 100, 1)
 CityManagement:addEventHandlers(  )
 
 function parseTimestamp( str )
-    local year, month, day, hour, min, sec = str:match( "( %d+ )-( %d+ )-( %d+ ) ( %d+ ):( %d+ ):( %d+ )" )
+    local year, month, day, hour, min, sec = str:match( "(%d+)-(%d+)-(%d+) (%d+):(%d+):(%d+)" )
     return os.time( { year=year, month=month, day=day, hour=hour, min=min, sec=sec } )
 end
