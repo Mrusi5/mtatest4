@@ -2,7 +2,7 @@
 <br>
 Управление городом в файлах factions/CUIMenu.lua, factions/Scity_managment.lua
 <br>
-UPDATE:
+<h1>UPDATE:</h1>
 <br>
 Удалены папки db_connect и admin_level.
 <br>
